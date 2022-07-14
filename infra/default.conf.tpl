@@ -1,9 +1,29 @@
 server {
-    listen 80;
+    listen ${LISTEN_PORT};
+    server_name localhost;
+    server_tokens off;
+
+    location /staticfiles/ {
+        alias /vol/static/;
+    }
+
     location /api/docs/ {
         root /usr/share/nginx/html;
         try_files $uri $uri/redoc.html;
     }
+
+    location /api/ {
+        try_files $uri @proxy_api;
+    }
+    location /admin/ {
+        try_files $uri @proxy_api;
+    }
+    location @proxy_api {
+        uwsgi_pass              ${APP_HOST}:${APP_PORT};
+        include                 /etc/nginx/uwsgi_params;
+        client_max_body_size    10M;
+    }
+
     location / {
         root /usr/share/nginx/html;
         index  index.html index.htm;
@@ -17,5 +37,4 @@ server {
       location = /50x.html {
         root   /var/html/frontend/;
       }
-
 }

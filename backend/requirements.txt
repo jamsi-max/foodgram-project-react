@@ -1,0 +1,9 @@
+Django>=2.2.19,<2.3
+djangorestframework>=3.13,<3.14
+djoser>=2.1,<2.2
+isort>=5.10,<5.11
+Pillow>=9.1,<9.2
+psycopg2>=2.8.6,<2.9
+uWSGI>=2.0.19.1,<2.1
+drf-extra-fields>=3.4,<3.5
+django-filter>=21.1,<21.2
