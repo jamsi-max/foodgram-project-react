@@ -79,7 +79,6 @@ class Tag(models.Model):
         ordering = ('name',)
         verbose_name = "Тэг"
         verbose_name_plural = "Тэги"
-        
 
     def __str__(self):
         return self.name
@@ -206,7 +205,6 @@ class FavouriteRecipe(models.Model):
         return (f'{self.user.username}, '
                 f'в избранном рецептов: {self.recipes_count}')
 
-    
     # @admin.display(
     #     description='Рецептов в избранном',
     # )
