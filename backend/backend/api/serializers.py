@@ -22,7 +22,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         source='ingredient.name'
     )
-    measurement_unit=serializers.CharField(
+    measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit'
     )
 
