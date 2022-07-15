@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=HTTP_201_CREATED, headers=headers
         )
-    
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -62,7 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        
+
         serializer = RecipeReadSerializer(
             instance=serializer.instance,
             context={'request': self.request},
@@ -92,7 +92,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def del_recipe(self, request, id=None):
         user = request.user
-        favorite_recipe = FavouriteRecipe.objects.filter(user=user, recipe__id=id)
+        favorite_recipe = FavouriteRecipe.objects.filter(
+            user=user,
+            recipe__id=id
+        )
 
         if favorite_recipe.exists():
             favorite_recipe.delete()
@@ -138,8 +141,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Ingredient.objects.all()
         name = self.request.query_params.get('name')
         if name is not None:
-            queryset = queryset.filter(name__iregex=f'^{name}')
-        return queryset 
+            return queryset.filter(name__iregex=f'^{name}')
+        return queryset
 
 
 class SpecialUserViewSet(UserViewSet):
@@ -152,7 +155,7 @@ class SpecialUserViewSet(UserViewSet):
     def add_subscribe(self, request, pk=None):
         user = request.user
         author = get_object_or_404(User, pk=pk)
-        
+
         if user == author:
             return Response(
                 {'errors': 'Подписка на себя запрещена!'},
