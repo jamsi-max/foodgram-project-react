@@ -63,39 +63,10 @@ class FoodUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+    def folower_count(self):
+        return self.following.count()
+    folower_count.short_description = 'Количество подписчиков'
 
-#     class Meta:
-#         constraints = (
-#             models.UniqueConstraint(
-#                 fields=['user', 'author'], name='unique_follow'
-#             ),
-#             # поля не могут ссылаться на один и тот же объект
-            # models.CheckConstraint(
-            #     check=~models.Q(user=models.F('author')),
-            #     name='not_yourself_follow'
-            # ),
-#         )
-#         ordering = ('author',)
-#         verbose_name = 'Подписка пользователя'
-#         verbose_name_plural = 'Подписки пользователей'
-
-#     def __str__(self):
-#         return (f'Подписчик {self.user.username[:15]}'
-#                 f' на автора {self.author.username[:15]}')
-
-#     # имена столбцов для админки logic
-    # @property  # type: ignore
-    # @admin.display(
-    #     description='Имеет подписчиков',
-    # )
-    # def folower_count(self):
-    #     """Сколько имеет подписчиков"""
-    #     return self.user.following.count()
-
-    # @property  # type: ignore
-    # @admin.display(
-    #     description='Подписан на',
-    # )
-    # def folowing_count(self):
-    #     """На скольких пользователей подписан"""
-    #     return self.user.follower.count()
+    def folowing_count(self):
+        return self.follower.count()
+    folowing_count.short_description = 'Количество подписок'

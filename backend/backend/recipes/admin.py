@@ -9,14 +9,15 @@ class IngredientRecipeInline(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author')
+    list_display = ('name', 'author', 'pub_date')
     inlines = (IngredientRecipeInline,)
     search_fields = ('name', 'text')
     list_filter = ('author', 'name', 'tags')
 
 
 class TagAdmin(admin.ModelAdmin):
-    search_fields = ('name',)
+    list_display = ('name', 'color', 'slug')
+    search_fields = ('name', '')
     list_filter = ('name',)
 
 

@@ -141,6 +141,41 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.add_recipe(request, BasketUser, pk)
         return None
 
+    # @action(
+    #     detail=False,
+    #     methods=('get',),
+    #     permission_classes=(IsAuthenticated,),
+    #     url_path='download_shopping_cart',
+    #     url_name='download_shopping_cart',
+    # )
+    # def download_text_file(self, request):
+        # user = request.user
+        # if not user.basket.exists():
+        #     return Response(
+        #         {'errors': 'Список покупок пустой!'},
+        #         status=HTTP_400_BAD_REQUEST
+        #     )
+
+        # basket_ingredients = IngredientRecipe.objects.filter(
+        #     recipe__basket_recipe__user=user
+        # ).values(
+        #     'ingredient__name',
+        #     'ingredient__measurement_unit'
+        # ).annotate(amount=Sum('amount')).order_by('ingredient__name')
+
+    #     response = HttpResponse(content_type='text/plain')
+    #     response['Content-Disposition'] = (
+    #         'attachment; filename="ingredient_list.txt"'
+    #     )
+    #     response.write('Список покупок:\r\n\r\n')
+    #     for ingridient in basket_ingredients:
+    #         response.write(
+    #             f'- {ingridient["ingredient__name"]} - '
+    #             f'{ingridient["amount"]} '
+    #             f'{ingridient["ingredient__measurement_unit"]} \r\n'
+    #         )
+    #     return response
+    
     @action(
         detail=False,
         methods=('get',),
@@ -148,34 +183,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
-    def download_text_file(self, request):
-        user = request.user
-        if not user.basket.exists():
-            return Response(
-                {'errors': 'Список покупок пустой!'},
-                status=HTTP_400_BAD_REQUEST
-            )
+    def some_view(self, request):
+        import io
+        from django.http import FileResponse
+        from reportlab.pdfgen import canvas
 
-        basket_ingredients = IngredientRecipe.objects.filter(
-            recipe__basket_recipe__user=user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount')).order_by('ingredient__name')
+        # user = request.user
+        # if not user.basket.exists():
+        #     return Response(
+        #         {'errors': 'Список покупок пустой!'},
+        #         status=HTTP_400_BAD_REQUEST
+        #     )
+        
+        # basket_ingredients = IngredientRecipe.objects.filter(
+        #     recipe__basket_recipe__user=user
+        # ).values(
+        #     'ingredient__name',
+        #     'ingredient__measurement_unit'
+        # ).annotate(amount=Sum('amount')).order_by('ingredient__name')
 
-        response = HttpResponse(content_type='text/plain')
-        response['Content-Disposition'] = (
-            'attachment; filename="ingredient_list.txt"'
-        )
-        response.write('Список покупок:\r\n\r\n')
-        for ingridient in basket_ingredients:
-            response.write(
-                f'- {ingridient["ingredient__name"]} - '
-                f'{ingridient["amount"]} '
-                f'{ingridient["ingredient__measurement_unit"]} \r\n'
-            )
-        return response
-
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        p.drawString(200, 100, 'basket ingredients')
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()

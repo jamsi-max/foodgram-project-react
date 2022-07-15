@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib import admin
 from django.db import models
 
 from recipes.models import Recipe
@@ -26,7 +25,7 @@ class BasketUser(models.Model):
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
 
-    @property
     def recipes_count(self):
         return self.user.basket.count()
+    recipes_count.short_description = 'Количество добавленных рецептов'
 
