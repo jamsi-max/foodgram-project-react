@@ -10,10 +10,8 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST)
-
-from recipes.models import FavouriteRecipe, Follow, Ingredient, Recipe, Tag
-
 from .filters import RecipeFilter
+from recipes.models import FavouriteRecipe, Follow, Ingredient, Recipe, Tag
 from .serializers import (FoodUserSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteOrUpdateSerializer,
                           SubscribeSerializer, TagSerializer)
@@ -75,7 +73,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def add_recipe(self, request, id=None):
         user = request.user
 
-        if FavouriteRecipe.objects.filter(user=user, recipe__id=id).exists():
+        if FavouriteRecipe.objects.filter(
+            user=user,
+            recipe__id=id
+        ).exists():
             return Response({
                 'errors': 'Рецепт уже добавлен в избранное!'},
                 status=HTTP_400_BAD_REQUEST
