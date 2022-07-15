@@ -1,8 +1,16 @@
+from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from core.models import BasketUser
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import FavouriteRecipe, Follow, Ingredient, Recipe, Tag
+from recipes.models import (FavouriteRecipe,
+                            Follow,
+                            Ingredient,
+                            Recipe,
+                            Tag,
+                            IngredientRecipe,)
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -71,10 +79,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer.data, status=HTTP_200_OK, headers=headers
         )
 
-    def add_recipe(self, request, id=None):
+    def add_recipe(self, request, model, id=None):
         user = request.user
 
-        if FavouriteRecipe.objects.filter(
+        if model.objects.filter(
             user=user,
             recipe__id=id
         ).exists():
@@ -84,14 +92,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
         recipe = get_object_or_404(Recipe, id=id)
-        FavouriteRecipe.objects.create(user=user, recipe=recipe)
+        model.objects.create(user=user, recipe=recipe)
         serializer = RecipeReadSerializer(recipe)
 
         return Response(serializer.data, status=HTTP_201_CREATED)
 
-    def del_recipe(self, request, id=None):
+    def del_recipe(self, request, model, id=None):
         user = request.user
-        favorite_recipe = FavouriteRecipe.objects.filter(
+        favorite_recipe = model.objects.filter(
             user=user,
             recipe__id=id
         )
@@ -114,10 +122,59 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_or_del_favorite(self, request, pk=None):
         if request.method == 'POST':
-            return self.add_recipe(request, pk)
+            return self.add_recipe(request, FavouriteRecipe, pk)
         elif request.method == 'DELETE':
-            return self.del_recipe(request, pk)
+            return self.del_recipe(request, FavouriteRecipe, pk)
         return None
+
+    @action(
+        detail=True,
+        methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,),
+        url_path='shopping_cart',
+        url_name='shopping_cart',
+    )
+    def shopping_cart(self, request, pk=None):
+        if request.method == 'DELETE':
+            return self.del_recipe(request, BasketUser, pk)
+        elif request.method == 'POST':
+            return self.add_recipe(request, BasketUser, pk)
+        return None
+
+    @action(
+        detail=False,
+        methods=('get',),
+        permission_classes=(IsAuthenticated,),
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart',
+    )
+    def download_text_file(self, request):
+        user = request.user
+        if not user.basket.exists():
+            return Response(
+                {'errors': 'Список покупок пустой!'},
+                status=HTTP_400_BAD_REQUEST
+            )
+
+        basket_ingredients = IngredientRecipe.objects.filter(
+            recipe__basket_recipe__user=user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount')).order_by('ingredient__name')
+
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; filename="ingredient_list.txt"'
+        )
+        response.write('Список покупок:\r\n\r\n')
+        for ingridient in basket_ingredients:
+            response.write(
+                f'- {ingridient["ingredient__name"]} - '
+                f'{ingridient["amount"]} '
+                f'{ingridient["ingredient__measurement_unit"]} \r\n'
+            )
+        return response
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
