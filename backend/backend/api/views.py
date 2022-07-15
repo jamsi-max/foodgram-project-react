@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from recipes.models import FavouriteRecipe, Follow, Ingredient, Recipe, Tag
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -10,9 +11,6 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST)
-
-from recipes.models import FavouriteRecipe, Follow, Ingredient, Recipe, Tag
-
 from .filters import RecipeFilter
 from .serializers import (FoodUserSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteOrUpdateSerializer,

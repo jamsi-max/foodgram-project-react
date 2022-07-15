@@ -6,7 +6,6 @@ from recipes.models import (FavouriteRecipe, Follow, Ingredient,
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-
 User = get_user_model()
 
 
@@ -23,7 +22,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         source='ingredient.name'
     )
-    measurement_unit= serializers.CharField(
+    measurement_unit=serializers.CharField(
         source='ingredient.measurement_unit'
     )
 
@@ -221,7 +220,7 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredient_list = [
             ingredient.get('id') for ingredient in data.get('ingredients')
-        ]           
+        ]
         if len(ingredient_list) != len(set(ingredient_list)):
             raise serializers.ValidationError(
                 'Повторное указание ингредиента!'
@@ -235,12 +234,17 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
                 validated_data.pop('tags')
             )
         except KeyError:
-            raise serializers.ValidationError('Не указаны ингридиенты или тэги')
+            raise serializers.ValidationError(
+                'Не указаны ингридиенты или тэги'
+            )
 
     def set_ingredients_and_tags(self, recipe, ingredients, tags):
         ingredients_insert = [
             IngredientRecipe(
-                ingredient=get_object_or_404(Ingredient, id=ingredient.get('id')),
+                ingredient=get_object_or_404(
+                    Ingredient,
+                    id=ingredient.get('id')
+                ),
                 recipe=recipe,
                 amount=ingredient.get('amount')
             ) for ingredient in ingredients
