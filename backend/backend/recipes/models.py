@@ -178,7 +178,7 @@ class Follow(models.Model):
 
 class FavouriteRecipe(models.Model):
     user = models.ForeignKey(
-        User, 
+        User,
         on_delete=models.CASCADE,
         related_name='favourite_recipes',
         verbose_name='Автор избранного'
