@@ -1,7 +1,9 @@
+
+import io
 from django.db.models import Sum
+from django.http import FileResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from core.models import BasketUser
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -11,6 +13,9 @@ from recipes.models import (FavouriteRecipe,
                             Recipe,
                             Tag,
                             IngredientRecipe,)
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -141,41 +146,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.add_recipe(request, BasketUser, pk)
         return None
 
-    # @action(
-    #     detail=False,
-    #     methods=('get',),
-    #     permission_classes=(IsAuthenticated,),
-    #     url_path='download_shopping_cart',
-    #     url_name='download_shopping_cart',
-    # )
-    # def download_text_file(self, request):
-        # user = request.user
-        # if not user.basket.exists():
-        #     return Response(
-        #         {'errors': 'Список покупок пустой!'},
-        #         status=HTTP_400_BAD_REQUEST
-        #     )
-
-        # basket_ingredients = IngredientRecipe.objects.filter(
-        #     recipe__basket_recipe__user=user
-        # ).values(
-        #     'ingredient__name',
-        #     'ingredient__measurement_unit'
-        # ).annotate(amount=Sum('amount')).order_by('ingredient__name')
-
-    #     response = HttpResponse(content_type='text/plain')
-    #     response['Content-Disposition'] = (
-    #         'attachment; filename="ingredient_list.txt"'
-    #     )
-    #     response.write('Список покупок:\r\n\r\n')
-    #     for ingridient in basket_ingredients:
-    #         response.write(
-    #             f'- {ingridient["ingredient__name"]} - '
-    #             f'{ingridient["amount"]} '
-    #             f'{ingridient["ingredient__measurement_unit"]} \r\n'
-    #         )
-    #     return response
-    
     @action(
         detail=False,
         methods=('get',),
@@ -183,32 +153,65 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
-    def some_view(self, request):
-        import io
-        from django.http import FileResponse
-        from reportlab.pdfgen import canvas
-
-        # user = request.user
-        # if not user.basket.exists():
-        #     return Response(
-        #         {'errors': 'Список покупок пустой!'},
-        #         status=HTTP_400_BAD_REQUEST
-        #     )
-        
-        # basket_ingredients = IngredientRecipe.objects.filter(
-        #     recipe__basket_recipe__user=user
-        # ).values(
-        #     'ingredient__name',
-        #     'ingredient__measurement_unit'
-        # ).annotate(amount=Sum('amount')).order_by('ingredient__name')
-
+    def some_view(self, request): 
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
-        p.drawString(200, 100, 'basket ingredients')
+        pdfmetrics.registerFont(TTFont('Montserrat', 'Montserrat.ttf'))
+
+        user = request.user
+        if not user.basket.exists():
+            return Response(
+                {'errors': 'Список покупок пустой!'},
+                status=HTTP_400_BAD_REQUEST
+            )
+
+        basket_ingredients = IngredientRecipe.objects.filter(
+            recipe__basket_recipe__user=user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount')).order_by('ingredient__name')
+
+        # header
+        p.setFillColorRGB(.255, .230, .238)
+        p.rect(0, 800, 652, 50,fill=1)
+
+        p.setFont('Montserrat', 14)
+        p.setFillColorRGB(1, 1, 1)
+        # header end
+
+        # footer
+        p.setFillColorRGB(.255, .230, .238)
+        p.rect(0,0,652,50,fill=1)
+
+        p.setFont('Montserrat', 14)
+        p.setFillColorRGB(1, 1, 1)
+        p.drawString(40, 20, 'Продуктовый помощник')
+        p.drawString(300, 20, 'Разработан: https://t.me/Jony2024')
+        # footer end
+
+        # ingridients list
+        p.setFont('Montserrat', 22)
+        p.setFillColorRGB(1, 1, 1)
+        p.drawString(100, 815, 'Список покупок:')
+        p.setFont('Montserrat', 14)
+        step = 750
+        p.setFillColorRGB(0, 0, 0)
+        for ingredient in basket_ingredients:
+            p.drawString(125, step, f'- {ingredient["ingredient__name"]} - {ingredient["amount"]} {ingredient["ingredient__measurement_unit"]};')
+            step -= 25
+            p.line(125, step+15, 500, step+15)
+        # end ingridients list
+
         p.showPage()
         p.save()
         buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename='shopping-list.pdf'
+        )
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()

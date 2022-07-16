@@ -3,13 +3,7 @@ from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 from recipes.models import Recipe
 
-# from users.models import CustomUser as User
-
 User = get_user_model()
-
-
-# class ProductSearchFilter(SearchFilter):
-#     search_param = 'name'
 
 
 class RecipeFilter(FilterSet):
