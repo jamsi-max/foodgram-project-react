@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
 from recipes.models import Recipe
 
 User = get_user_model()
@@ -28,4 +27,3 @@ class BasketUser(models.Model):
     def recipes_count(self):
         return self.user.basket.count()
     recipes_count.short_description = 'Количество добавленных рецептов'
-

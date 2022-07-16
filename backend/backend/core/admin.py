@@ -9,4 +9,5 @@ class BasketAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
     ordering = ('user',)
 
+
 admin.site.register(BasketUser, BasketAdmin)
