@@ -153,7 +153,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
-    def some_view(self, request): 
+    def some_view(self, request):
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
         pdfmetrics.registerFont(TTFont('Montserrat', 'Montserrat.ttf'))
