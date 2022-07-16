@@ -202,11 +202,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 125,
                 step,
                 f'- {ingredient["ingredient__name"]} - \
-                {ingredient["amount"]} \
-                {ingredient["ingredient__measurement_unit"]};'
-            )
+{ingredient["amount"]} {ingredient["ingredient__measurement_unit"]};')
             step -= 25
-            p.line(125, step+15, 500, step+15)
+            p.line(125, step + 15, 500, step + 15)
         # end ingridients list
 
         p.showPage()
