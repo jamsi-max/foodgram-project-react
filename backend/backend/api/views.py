@@ -174,7 +174,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         # header
         p.setFillColorRGB(.255, .230, .238)
-        p.rect(0, 800, 652, 50,fill=1)
+        p.rect(0, 800, 652, 50, fill=1)
 
         p.setFont('Montserrat', 14)
         p.setFillColorRGB(1, 1, 1)
@@ -182,7 +182,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         # footer
         p.setFillColorRGB(.255, .230, .238)
-        p.rect(0,0,652,50,fill=1)
+        p.rect(0, 0, 652, 50, fill=1)
 
         p.setFont('Montserrat', 14)
         p.setFillColorRGB(1, 1, 1)
@@ -198,7 +198,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         step = 750
         p.setFillColorRGB(0, 0, 0)
         for ingredient in basket_ingredients:
-            p.drawString(125, step, f'- {ingredient["ingredient__name"]} - {ingredient["amount"]} {ingredient["ingredient__measurement_unit"]};')
+            p.drawString(
+                125,
+                step,
+                f'- {ingredient["ingredient__name"]} - \
+                {ingredient["amount"]} \
+                {ingredient["ingredient__measurement_unit"]};'
+            )
             step -= 25
             p.line(125, step+15, 500, step+15)
         # end ingridients list
