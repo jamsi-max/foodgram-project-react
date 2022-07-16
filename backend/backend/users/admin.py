@@ -1,6 +1,6 @@
 from django.contrib import admin
-
 from .models import FoodUser
+
 
 class FoodUserAdmin(admin.ModelAdmin):
     list_display = ('email','username', 'folower_count', 'folowing_count')
