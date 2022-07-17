@@ -10,7 +10,7 @@
 
 ##### **Домашняя страница:** `http://eda.sytes.net/`
 
-![](https://github.com/jamsi-max/foodgram-project-react/backend/data_for_db/foodgram.png?raw=true)
+![](https://github.com/jamsi-max/foodgram-project-react/blob/master/backend/data_for_db/foodgram.png?raw=true)
 
 ###### В проекте реализовано
 
