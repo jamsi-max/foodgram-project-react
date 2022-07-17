@@ -42,7 +42,7 @@ jobs:
         with:
           file: backend/Dockerfile
           push: true
-          tags: jony2024/api_yamdb_final
+          tags: jony2024/foodgram:latest
 
   deploy:
     runs-on: ubuntu-latest
