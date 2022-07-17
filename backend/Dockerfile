@@ -10,7 +10,6 @@ COPY backend/data_for_db/ingredients.csv /ingredients.csv
 COPY backend/backend /backend
 
 WORKDIR /backend
-
 EXPOSE 8000
 
 RUN python -m venv /py && \
