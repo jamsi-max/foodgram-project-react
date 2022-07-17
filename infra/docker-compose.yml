@@ -2,8 +2,7 @@ version: '3.3'
 services:
 
   backend:
-    build:
-      context: ../backend
+    image: jony2024/foodgram:latest
     restart: always
     volumes:
       - static-files:/vol/web  
