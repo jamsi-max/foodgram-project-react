@@ -4,10 +4,10 @@ LABEL maintainer="foodgram"
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /requirements.txt
+COPY backend/requirements.txt /requirements.txt
 COPY ./backend  /backend
-COPY ./scripts /scripts
-COPY ./data_for_db/ingredients.csv /ingredients.csv
+COPY backend//scripts /scripts
+COPY backend/data_for_db/ingredients.csv /ingredients.csv
 
 WORKDIR /backend
 EXPOSE 8000
