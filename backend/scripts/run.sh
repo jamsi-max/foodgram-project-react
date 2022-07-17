@@ -7,10 +7,10 @@ ls -la /vol/web
 
 whoami
 
-python manage.py wait_for_db
-python manage.py collectstatic --noinput
-python manage.py makemigrations
-python manage.py migrate
-python manage.py addcsvdata
+backend/python manage.py wait_for_db
+backend/python manage.py collectstatic --noinput
+backend/python manage.py makemigrations
+backend/python manage.py migrate
+backend/python manage.py addcsvdata
 
-uwsgi --socket :9000 --module backend.wsgi
+backend/uwsgi --socket :9000 --module backend.wsgi
