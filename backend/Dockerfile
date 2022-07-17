@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 COPY backend/requirements.txt /requirements.txt
 COPY backend/scripts /scripts
 COPY backend/data_for_db/ingredients.csv /ingredients.csv
-COPY ./backend  /backend
+COPY backend/backend /backend
 
 WORKDIR /backend
 EXPOSE 8000
