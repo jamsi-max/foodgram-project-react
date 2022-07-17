@@ -1,6 +1,6 @@
 server {
     listen ${LISTEN_PORT};
-    server_name localhost;
+    server_name 84.201.142.34;
     server_tokens off;
 
     location /staticfiles/ {

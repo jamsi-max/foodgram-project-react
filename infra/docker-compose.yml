@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 services:
 
   backend:
@@ -6,13 +6,8 @@ services:
     restart: always
     volumes:
       - static-files:/vol/web  
-    environment:
-      - DB_HOST=db
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    env_file:
+      - ./.env
     depends_on:
       - db
 
@@ -21,14 +16,11 @@ services:
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASS}
+    env_file:
+      - ./.env
 
   nginx:
-    build:
-      context: ./
+    image: jony2024/foodgram_nginx:latest
     restart: always
     ports:
       - "80:80"
@@ -40,9 +32,7 @@ services:
       - backend
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: jony2024/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:

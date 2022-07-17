@@ -5,9 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 COPY backend/requirements.txt /requirements.txt
-COPY ./backend  /backend
-COPY backend//scripts /scripts
+COPY backend/scripts /scripts
 COPY backend/data_for_db/ingredients.csv /ingredients.csv
+COPY ./backend  /backend
 
 WORKDIR /backend
 EXPOSE 8000
