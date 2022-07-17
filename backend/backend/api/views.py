@@ -26,15 +26,16 @@ from .filters import RecipeFilter
 from .serializers import (FoodUserSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteOrUpdateSerializer,
                           SubscribeSerializer, TagSerializer)
+from .permissions import AuthorOrReadOnly
 
 User = get_user_model()
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = [
-        IsAuthenticatedOrReadOnly,
-    ]
+    permission_classes = (
+        AuthorOrReadOnly,
+    )
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, )
     filter_class = RecipeFilter
@@ -217,18 +218,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [
-        IsAuthenticatedOrReadOnly,
-    ]
     pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
-    permission_classes = [
-        IsAuthenticatedOrReadOnly,
-    ]
     pagination_class = None
+
+    http_method_names = ('get',)
 
     def get_queryset(self):
         queryset = Ingredient.objects.all()
@@ -239,6 +236,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SpecialUserViewSet(UserViewSet):
+    queryset = User.objects.all().prefetch_related('recipes')
+    pagination_class = None
     serializer_class = FoodUserSerializer
     lookup_field = 'pk'
     lookup_value_regex = '[0-9]'
