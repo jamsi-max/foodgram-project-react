@@ -4,7 +4,6 @@ Django command to add csv data from ingredients.csv
 import csv
 
 from django.core.management.base import BaseCommand
-
 from recipes.models import Ingredient
 
 
