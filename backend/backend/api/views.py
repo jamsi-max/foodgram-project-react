@@ -1,15 +1,12 @@
 
 import io
 
-from core.models import BasketUser
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (FavouriteRecipe, Follow, Ingredient,
-                            IngredientRecipe, Recipe, Tag)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -20,6 +17,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST)
+
+from core.models import BasketUser
+from recipes.models import (FavouriteRecipe, Follow, Ingredient,
+                            IngredientRecipe, Recipe, Tag)
 
 from .filters import RecipeFilter
 from .permissions import AuthorOrReadOnly
