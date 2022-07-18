@@ -16,13 +16,13 @@ from reportlab.pdfgen import canvas
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST)
 
 from .filters import RecipeFilter
-# from .permissions import AuthorOrReadOnly
+from .permissions import AuthorOrReadOnly
 from .serializers import (FoodUserSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteOrUpdateSerializer,
                           SubscribeSerializer, TagSerializer)
@@ -33,10 +33,9 @@ User = get_user_model()
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (
-        AllowAny,
+        AuthorOrReadOnly,
     )
     pagination_class = PageNumberPagination
-    # pagination_class = None
     filter_backends = (DjangoFilterBackend, )
     filter_class = RecipeFilter
 
@@ -236,8 +235,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SpecialUserViewSet(UserViewSet):
-    queryset = User.objects.all().prefetch_related('recipes')
-    pagination_class = None
+    queryset = User.objects.all()
     serializer_class = FoodUserSerializer
     lookup_field = 'pk'
     lookup_value_regex = '[0-9]'
@@ -284,7 +282,6 @@ class SpecialUserViewSet(UserViewSet):
         url_name='subscriptions',
     )
     def get_subscriptions(self, request):
-        """Get and return current user's subscriptions."""
         user = request.user
         queryset = Follow.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
