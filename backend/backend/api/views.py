@@ -235,7 +235,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SpecialUserViewSet(UserViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().prefetch_related('recipes')
     serializer_class = FoodUserSerializer
     lookup_field = 'pk'
     lookup_value_regex = '[0-9]'
