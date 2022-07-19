@@ -131,7 +131,5 @@ dmypy.json
 # .idea
 .idea
 
-/data/
-data/
-/data
+/backend/data
 /dev
