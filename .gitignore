@@ -134,4 +134,5 @@ dmypy.json
 /backend/data
 /backend/data/
 .backend/data/
+.backend/data
 /dev
