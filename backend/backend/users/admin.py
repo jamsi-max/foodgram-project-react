@@ -9,7 +9,7 @@ class FoodUserAdmin(admin.ModelAdmin):
                     'folower_count',
                     'folowing_count',)
     list_filter = ('username',)
-    search_fields = ('username',)
+    search_fields = ('username', 'email')
     ordering = ('username',)
 
 

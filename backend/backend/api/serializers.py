@@ -95,8 +95,10 @@ class SubscribeSerializer(serializers.ModelSerializer):
         required=False
     )
     is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(
+        source='author.recipes.count', 
+        read_only=True
+    )
 
     class Meta:
         model = Follow
@@ -134,9 +136,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
                                           many=True,)
 
         return serializer.data
-
-    def get_recipes_count(self, obj):
-        return obj.author.recipes.count()
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -220,13 +219,25 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
                   'author',)
 
     def validate(self, data):
+        if not data['tags']:
+            raise serializers.ValidationError(
+                'Поле тэги обязательное!'
+            )
+
+        if not data['ingredients']:
+            raise serializers.ValidationError(
+                'Поле ингредиенты обязательное!'
+            )
+        
         ingredient_list = [
             ingredient.get('id') for ingredient in data.get('ingredients')
         ]
+
         if len(ingredient_list) != len(set(ingredient_list)):
             raise serializers.ValidationError(
                 'Повторное указание ингредиента!'
             )
+
         return data
 
     def get_ingredients_and_tags(self, validated_data):
@@ -237,7 +248,7 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
             )
         except KeyError:
             raise serializers.ValidationError(
-                'Не указаны ингридиенты или тэги'
+                'Не указаны ингредиенты или тэги'
             )
 
     def set_ingredients_and_tags(self, recipe, ingredients, tags):

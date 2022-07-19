@@ -1,16 +1,9 @@
-
-import io
-
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -19,6 +12,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST)
 
 from core.models import BasketUser
+from core.utils import get_shopping_list_pdf
 from recipes.models import (FavouriteRecipe, Follow, Ingredient,
                             IngredientRecipe, Recipe, Tag)
 
@@ -31,16 +25,19 @@ from .serializers import (FoodUserSerializer, IngredientSerializer,
 User = get_user_model()
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (
         AuthorOrReadOnly,
     )
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
-
-    http_method_names = ('get', 'post', 'patch', 'delete')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -48,8 +45,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeReadSerializer
-        else:
-            return RecipeWriteOrUpdateSerializer
+        return RecipeWriteOrUpdateSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -126,7 +122,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def add_or_del_favorite(self, request, pk=None):
         if request.method == 'POST':
             return self.add_recipe(request, FavouriteRecipe, pk)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             return self.del_recipe(request, FavouriteRecipe, pk)
         return None
 
@@ -140,7 +136,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         if request.method == 'DELETE':
             return self.del_recipe(request, BasketUser, pk)
-        elif request.method == 'POST':
+        if request.method == 'POST':
             return self.add_recipe(request, BasketUser, pk)
         return None
 
@@ -151,12 +147,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
-    def some_view(self, request):
-        buffer = io.BytesIO()
-        p = canvas.Canvas(buffer)
-        pdfmetrics.registerFont(TTFont('Montserrat', 'Montserrat.ttf'))
-
+    def download_shopping_cart(self, request):
         user = request.user
+
         if not user.basket.exists():
             return Response(
                 {'errors': 'Список покупок пустой!'},
@@ -170,49 +163,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount')).order_by('ingredient__name')
 
-        # header
-        p.setFillColorRGB(.255, .230, .238)
-        p.rect(0, 800, 652, 50, fill=1)
-
-        p.setFont('Montserrat', 14)
-        p.setFillColorRGB(1, 1, 1)
-        # header end
-
-        # footer
-        p.setFillColorRGB(.255, .230, .238)
-        p.rect(0, 0, 652, 50, fill=1)
-
-        p.setFont('Montserrat', 14)
-        p.setFillColorRGB(1, 1, 1)
-        p.drawString(40, 20, 'Продуктовый помощник')
-        p.drawString(300, 20, 'Разработан: https://t.me/Jony2024')
-        # footer end
-
-        # ingridients list
-        p.setFont('Montserrat', 22)
-        p.setFillColorRGB(1, 1, 1)
-        p.drawString(100, 815, 'Список покупок:')
-        p.setFont('Montserrat', 14)
-        step = 750
-        p.setFillColorRGB(0, 0, 0)
-        for ingredient in basket_ingredients:
-            p.drawString(
-                125,
-                step,
-                f'- {ingredient["ingredient__name"]} - \
-{ingredient["amount"]} {ingredient["ingredient__measurement_unit"]};')
-            step -= 25
-            p.line(125, step + 15, 500, step + 15)
-        # end ingridients list
-
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(
-            buffer,
-            as_attachment=True,
-            filename='shopping-list.pdf'
-        )
+        return get_shopping_list_pdf(basket_ingredients)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -303,6 +254,6 @@ class SpecialUserViewSet(UserViewSet):
     def add_or_del_subscribe(self, request, pk=None):
         if request.method == 'POST':
             return self.add_subscribe(request, pk)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             return self.del_subscribe(request, pk)
         return None

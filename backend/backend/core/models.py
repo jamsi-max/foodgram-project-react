@@ -24,6 +24,12 @@ class BasketUser(models.Model):
         ordering = ('user',)
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',),
+                name='basket_unique_user_recipe',
+            ),
+        )
 
     def recipes_count(self):
         return self.user.basket.count()
