@@ -230,9 +230,13 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
                 'Поле ингредиенты обязательное!'
             )
 
-        ingredient_list = [
-            ingredient.get('id') for ingredient in data.get('ingredients')
-        ]
+        ingredient_list = []
+        for ingredient in data['ingredients']:
+            if int(ingredient.get('amount')) < 1:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше 0!'
+                )
+            ingredient_list.append(ingredient.get('id'))
 
         if len(ingredient_list) != len(set(ingredient_list)):
             raise serializers.ValidationError(
