@@ -176,8 +176,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
 
-    http_method_names = ('get',)
-
     def get_queryset(self):
         queryset = Ingredient.objects.all()
         name = self.request.query_params.get('name')

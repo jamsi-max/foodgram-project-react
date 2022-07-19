@@ -95,6 +95,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         required=False
     )
     is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField() 
     recipes_count = serializers.IntegerField(
         source='author.recipes.count',
         read_only=True
