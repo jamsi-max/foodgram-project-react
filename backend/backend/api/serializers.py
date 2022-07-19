@@ -96,7 +96,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
     )
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(
-        source='author.recipes.count', 
+        source='author.recipes.count',
         read_only=True
     )
 
@@ -228,7 +228,7 @@ class RecipeWriteOrUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Поле ингредиенты обязательное!'
             )
-        
+
         ingredient_list = [
             ingredient.get('id') for ingredient in data.get('ingredients')
         ]
