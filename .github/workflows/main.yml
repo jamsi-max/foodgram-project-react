@@ -67,7 +67,8 @@ jobs:
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
           echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-          sudo docker-compose up --build -d
+          sudo docker-compose up --force-recreate --build -d
+          sudo docker image prune -f
 
 
   send_message:
